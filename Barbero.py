@@ -4,10 +4,10 @@ import time, random
 mutex = Lock()
 
 #Interval in seconds
-customerIntervalMin = 5
-customerIntervalMax = 15
-haircutDurationMin = 3
-haircutDurationMax = 15
+clienteIntervaloMin = 5
+clienteIntervaloMax = 15
+duracionCorteMin = 3
+duracionCorteMax = 15
 
 class BarberShop:
 	waitingCustomers = []
@@ -15,15 +15,15 @@ class BarberShop:
 	def __init__(self, barber, numberOfSeats):
 		self.barber = barber
 		self.numberOfSeats = numberOfSeats
-		print ('BarberShop initilized with {0} seats'.format(numberOfSeats))
-		print ('Customer min interval {0}'.format(customerIntervalMin))
-		print ('Customer max interval {0}'.format(customerIntervalMax))
-		print ('Haircut min duration {0}'.format(haircutDurationMin))
-		print ('Haircut max duration {0}'.format(customerIntervalMax))
+		print ('Barberia inicializa con {0} sitios'.format(numberOfSeats))
+		print ('Cliente min intervalo {0}'.format(clienteIntervaloMin))
+		print ('Cliente max interval {0}'.format(clienteIntervaloMax))
+		print ('Haircut min duration {0}'.format(duracionCorteMin))
+		print ('Haircut max duration {0}'.format(clienteIntervaloMax))
 		print ('---------------------------------------')
 
 	def openShop(self):
-		print ('Barber shop is opening')
+		print ('Barberia esta abierto')
 		workingThread = Thread(target = self.barberGoToWork)
 		workingThread.start()
 
@@ -35,25 +35,25 @@ class BarberShop:
 				c = self.waitingCustomers[0]
 				del self.waitingCustomers[0]
 				mutex.release()
-				self.barber.cutHair(c)
+				self.barber.cortarPelo(c)
 			else:
 				mutex.release()
-				print('Aaah, all done, going to sleep')
-				barber.sleep()
-				print('Barber woke up')
+				print('Aaah, todo terminado, se va a dormir')
+				barber.dormir()
+				print('Barbero se despierta')
 
 	def enterBarberShop(self, customer):
 		mutex.acquire()
-		print ('>> {0} entered the shop and is looking for a seat'.format(customer.name))
+		print ('>> {0} entra a la barberia y busca un asiento'.format(customer.name))
 
 		if len(self.waitingCustomers) == self.numberOfSeats:
-			print ('Waiting room is full, {0} is leaving.'.format(customer.name))
+			print ('Esperando habitación está llena, {0} esta  yéndose.'.format(customer.name))
 			mutex.release()
 		else:
-			print ('{0} sat down in the waiting room'.format(customer.name))
-			self.waitingCustomers.append(c)	
+			print ('{0} se siente en la sala de espera'.format(customer.name))
+			self.waitingCustomers.append(c)
 			mutex.release()
-			barber.wakeUp()
+			barber.despertar()
 
 class Customer:
 	def __init__(self, name):
@@ -62,42 +62,40 @@ class Customer:
 class Barber:
 	barberWorkingEvent = Event()
 
-	def sleep(self):
+	def dormir(self):
 		self.barberWorkingEvent.wait()
 
-	def wakeUp(self):
+	def despertar(self):
 		self.barberWorkingEvent.set()
 
-	def cutHair(self, customer):
-		#Set barber as busy 
+	def cortarPelo(self, customer):
+		#Establece barbero como ocupado
 		self.barberWorkingEvent.clear()
 
-		print ('{0} is having a haircut'.format(customer.name))
+		print ('{0} se está cortando el pelo'.format(customer.name))
 
-		randomHairCuttingTime = random.randrange(haircutDurationMin, haircutDurationMax+1)
+		randomHairCuttingTime = random.randrange(duracionCorteMin, duracionCorteMax+1)
 		time.sleep(randomHairCuttingTime)
-		print ('{0} is done'.format(customer.name))
+		print ('{0} está teminado'.format(customer.name))
 
 
 if __name__ == '__main__':
 	customers = []
-	customers.append(Customer('Bragi'))
-	customers.append(Customer('Auja'))
-	customers.append(Customer('Iris'))
-	customers.append(Customer('Axel'))
-	customers.append(Customer('Andrea'))
-	customers.append(Customer('Agnar'))
-	customers.append(Customer('Mamma'))
-	customers.append(Customer('Solla'))
-	customers.append(Customer('Olla'))
-	customers.append(Customer('Berglind'))
-	customers.append(Customer('Bergdis'))
-	customers.append(Customer('Margret'))
-	customers.append(Customer('Brynjar'))
-	customers.append(Customer('Siggi'))
-	customers.append(Customer('Tomas'))
-	customers.append(Customer('Kristrun'))
-	customers.append(Customer('Heidrun'))
+	customers.append(Customer('Rubén'))
+	customers.append(Customer('Pablo'))
+	customers.append(Customer('Lorenzo'))
+	customers.append(Customer('Alberto'))
+	customers.append(Customer('David'))
+	customers.append(Customer('Javier'))
+	customers.append(Customer('Alejandro'))
+	customers.append(Customer('Enrique'))
+	customers.append(Customer('Héctor'))
+	customers.append(Customer('Jorge'))
+	customers.append(Customer('Jaime'))
+	customers.append(Customer('Asier'))
+	customers.append(Customer('Carlos'))
+	customers.append(Customer('Juan'))
+
 
 	barber = Barber()
 
@@ -105,8 +103,8 @@ if __name__ == '__main__':
 	barberShop.openShop()
 
 	while len(customers) > 0:
-		c = customers.pop()	
-		#New customer enters the barbershop
+		c = customers.pop()
+		#nuevos clientes entran a la tienda
 		barberShop.enterBarberShop(c)
-		customerInterval = random.randrange(customerIntervalMin,customerIntervalMax+1)
+		customerInterval = random.randrange(clienteIntervaloMin,clienteIntervaloMax+1)
 		time.sleep(customerInterval)
